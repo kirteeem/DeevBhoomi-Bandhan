@@ -38,15 +38,27 @@ await connectDB();
 const app = express();
 const server = http.createServer(app);
 
-// Enable proxy trust for accurate IP rate limiting
+// Enable proxy trust
 app.set("trust proxy", 1);
 
-// Initialize Socket.IO Early so we can attach it to the app instance safely
+// Allowed frontend origins
 const allowedOrigins = [
   "http://localhost:5173",
   "https://deevbhoomi-bandhan-frontend-1.onrender.com",
 ];
 
+// Socket.IO
+const io = new SocketIOServer(server, {
+  cors: {
+    origin: allowedOrigins,
+    credentials: true,
+  },
+});
+
+initSocket(io);
+app.set("io", io);
+
+// Express CORS
 app.use(
   cors({
     origin(origin, callback) {
@@ -64,7 +76,6 @@ app.use(
   })
 );
 
-// Handle preflight requests
 app.options("*", cors());
 initSocket(io);
 app.set("io", io); // Now safely available to all route controllers below!
