@@ -79,10 +79,12 @@ app.use(
 app.use(
   cors({
     origin: (origin, callback) => {
-      console.log("Origin:", origin);
-      console.log("Allowed:", allowedOrigins);
+      console.log("Incoming Origin:", origin);
+      console.log("Allowed Origins:", allowedOrigins);
 
-      if (!origin || allowedOrigins.includes(origin)) {
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin.trim())) {
         return callback(null, true);
       }
 
