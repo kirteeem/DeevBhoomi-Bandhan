@@ -30,8 +30,13 @@ api.interceptors.response.use(
   (res) => res,
   async (error) => {
     const original = error.config;
-    if (error.response?.status === 401 && !original._retry) {
-      original._retry = true;
+if (
+  error.response?.status === 401 &&
+  !original._retry &&
+  !original.url?.includes("/auth/login") &&
+  !original.url?.includes("/auth/signup") &&
+  !original.url?.includes("/auth/refresh")
+) {
 
       if (isRefreshing) {
         await new Promise<void>((resolve) => queue.push(resolve));
@@ -41,7 +46,15 @@ api.interceptors.response.use(
       isRefreshing = true;
       try {
         const refreshToken = localStorage.getItem("refreshToken");
-        const { data } = await axios.post(`${API_BASE_URL}/auth/refresh`, { refreshToken });
+
+if (!refreshToken) {
+  return Promise.reject(error);
+}
+
+const { data } = await axios.post(
+  `${API_BASE_URL}/auth/refresh`,
+  { refreshToken }
+);
         localStorage.setItem("accessToken", data.data.accessToken);
         queue.forEach((resolve) => resolve());
         queue = [];
