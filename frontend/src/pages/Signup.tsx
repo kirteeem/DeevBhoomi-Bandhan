@@ -12,7 +12,6 @@ import {
   Phone, 
   Lock, 
   ChevronDown, 
-  ShieldAlert, 
   Check,
   ArrowRight,
   BadgeCheck
@@ -72,16 +71,31 @@ export const Signup = () => {
 
   const selectedGender = watch("gender");
 
-  const onSubmit = async (values: SignupFormData) => {
-    setServerError("");
-    try {
-      const { data } = await api.post("/auth/signup", values);
-      loginWithTokens(data.data.user, data.data.accessToken, data.data.refreshToken);
-      navigate("/dashboard");
-    } catch (err: any) {
-      setServerError(getFriendlyErrorMessage(err, "An account creation anomaly occurred. Please review parameters."));
-    }
-  };
+ const onSubmit = async (values: SignupFormData) => {
+  setServerError("");
+  try {
+    const { data } = await api.post("/auth/signup", values);
+    loginWithTokens(data.data.user, data.data.accessToken, data.data.refreshToken);
+    navigate("/dashboard");
+ } catch (err: any) {
+  console.error(err);
+
+  const status = err?.response?.status;
+  const message = err?.response?.data?.message;
+
+  if (status === 409) {
+    setServerError(
+      "An account already exists with this email or phone number. Please sign in instead."
+    );
+  } else if (status === 422) {
+    setServerError(message);
+  } else if (status === 401) {
+    setServerError("Invalid credentials.");
+  } else {
+    setServerError(message || "Something went wrong. Please try again.");
+  }
+}
+};
 
   // Google OAuth Login handler
   const handleGoogleLogin = useGoogleLogin({
@@ -350,17 +364,21 @@ export const Signup = () => {
                   )}
                 </div>
 
-                {/* Server Error Messaging */}
-                {serverError && (
-                  <motion.div 
-                    initial={{ opacity: 0, y: 5 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="flex items-start gap-3 rounded-xl border border-[#7B1E3D]/10 bg-[#7B1E3D]/05 p-4 text-xs text-[#7B1E3D] font-medium"
-                  >
-                    <ShieldAlert size={15} className="flex-shrink-0 mt-0.5" />
-                    <span>{serverError}</span>
-                  </motion.div>
-                )}
+               {serverError && (
+  <div className="rounded-xl border border-red-200 bg-red-50 p-4 mt-4">
+    <p className="text-red-700">{serverError}</p>
+
+    {serverError.includes("already exists") && (
+      <button
+        type="button"
+        onClick={() => navigate("/login")}
+        className="mt-3 font-semibold text-red-700 underline"
+      >
+        Sign In Instead →
+      </button>
+    )}
+  </div>
+)}
 
                 {/* CTA Action Block */}
                 <div className="space-y-6 pt-4">

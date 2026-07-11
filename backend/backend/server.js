@@ -42,18 +42,30 @@ const server = http.createServer(app);
 app.set("trust proxy", 1);
 
 // Initialize Socket.IO Early so we can attach it to the app instance safely
-const allowedOrigins = (process.env.CLIENT_URL || "http://localhost:5173")
-  .split(",")
-  .map((o) => o.trim());
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://deevbhoomi-bandhan-frontend-1.onrender.com",
+];
 
-console.log("✅ Allowed CORS origins:", allowedOrigins);
+app.use(
+  cors({
+    origin(origin, callback) {
+      if (!origin) return callback(null, true);
 
-const io = new SocketIOServer(server, {
-  cors: {
-    origin: allowedOrigins,
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(new Error("CORS blocked"));
+    },
     credentials: true,
-  },
-});
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
+
+// Handle preflight requests
+app.options("*", cors());
 initSocket(io);
 app.set("io", io); // Now safely available to all route controllers below!
 
