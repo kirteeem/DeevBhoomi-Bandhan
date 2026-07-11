@@ -76,11 +76,22 @@ app.use(
 // one hardcoded with a placeholder frontend URL. That caused the browser
 // to reject every cross-origin request, including sign-in. Removed the
 // duplicate; this is now the only CORS setup in the app.)
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://deevbhoomi-bandhan-frontend-1.onrender.com",
+];
+
 app.use(
   cors({
-    origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
-      callback(new Error("Not allowed by CORS"));
+    origin: function (origin, callback) {
+      console.log("Request Origin:", origin);
+
+      if (!origin || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      console.log("Blocked Origin:", origin);
+      return callback(new Error("Not allowed by CORS"));
     },
     credentials: true,
   })
