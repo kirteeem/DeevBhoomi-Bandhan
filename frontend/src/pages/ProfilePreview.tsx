@@ -5,6 +5,7 @@ import { User, GraduationCap, Home, Heart, Moon, ArrowLeft, Sparkles, Loader2, C
 import { api } from "../lib/axios";
 import { useAuth } from "../context/AuthContext";
 import { unlockProfile } from "../lib/profileApi";
+import { resolvePhotoUrl } from "../lib/media";
 import { AboutSection } from "../components/profile/AboutSection";
 import { ProfileGallery } from "../components/profile/ProfileGallery";
 import { LockedDetailsCard } from "../components/profile/LockedDetailsCard";
@@ -115,11 +116,10 @@ export const ProfilePreview = () => {
     (profile as any).photos?.find((photo: any) => photo.isProfilePhoto) ||
     (profile as any).photos?.[0];
 
-  // Concatenate server URL environment variables safely for relative endpoints
-  const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
-  const userMainImage = profilePhoto?.url
-    ? profilePhoto.url.startsWith("http") ? profilePhoto.url : `${baseUrl}${profilePhoto.url}`
-    : "";
+  // Resolve via the shared media helper (handles Cloudinary absolute URLs,
+  // legacy disk-storage prefixes, and missing leading slashes consistently
+  // with every other page that renders a profile photo).
+  const userMainImage = resolvePhotoUrl(profilePhoto?.url) || "";
 
   // FIXED: Cast profile fields to avoid missing explicit property interface types compiled validation issues
  // FIXED: Cast profile to any to resolve the missing 'fullName' type error

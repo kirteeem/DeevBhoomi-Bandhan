@@ -52,8 +52,19 @@ export const UserProfileMenu = ({ variant = "desktop" }: UserProfileMenuProps) =
 
 const photoUrl = primaryPhoto
   ? resolvePhotoUrl(primaryPhoto.url)
-  : undefined;    
+  : undefined;
   const initial = user.fullName?.charAt(0).toUpperCase() ?? "U";
+
+  // Tracks whether the <img> actually failed to load (404, deleted file,
+  // broken CDN link, etc.) so we can fall back to the initial-letter avatar
+  // instead of the browser's broken-image icon. Reset whenever the resolved
+  // URL changes so a new upload gets a fresh chance to load.
+  const [photoFailed, setPhotoFailed] = useState(false);
+  useEffect(() => {
+    setPhotoFailed(false);
+  }, [photoUrl]);
+  const showPhoto = !!photoUrl && !photoFailed;
+
   const friendlyId = profile?.user?.profileCode ? `ID: ${profile.user.profileCode}` : "—";
 
   const go = (path: string) => {
@@ -80,8 +91,13 @@ const photoUrl = primaryPhoto
     <div className="bg-gradient-to-br from-[#0F241D] via-[#163329] to-[#0A1A15] p-5 text-white">
       <div className="flex items-center gap-3.5">
         <div className="relative flex h-14 w-14 flex-shrink-0 items-center justify-center overflow-hidden rounded-full border-2 border-[#D4AF37]/50 bg-white/5 ring-4 ring-black/10">
-          {photoUrl ? (
-            <img src={photoUrl} alt={user.fullName} className="h-full w-full object-cover transition-transform duration-500 hover:scale-105" />
+          {showPhoto ? (
+            <img
+              src={photoUrl}
+              alt={user.fullName}
+              className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
+              onError={() => setPhotoFailed(true)}
+            />
           ) : (
             <span className="font-serif text-lg font-medium tracking-wide text-[#E8CD7A]">{initial}</span>
           )}
@@ -152,8 +168,8 @@ const photoUrl = primaryPhoto
         className="flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.06] p-1.5 pr-3.5 backdrop-blur-xl transition-all duration-300 hover:bg-white/[0.12] hover:border-white/20 group"
       >
         <span className="relative flex h-9 w-9 flex-shrink-0 items-center justify-center overflow-hidden rounded-full border border-[#D4AF37]/40 bg-stone-900 text-sm font-semibold text-white shadow-inner">
-          {photoUrl ? (
-            <img src={photoUrl} alt={user.fullName} className="h-full w-full object-cover" />
+          {showPhoto ? (
+            <img src={photoUrl} alt={user.fullName} className="h-full w-full object-cover" onError={() => setPhotoFailed(true)} />
           ) : (
             initial
           )}

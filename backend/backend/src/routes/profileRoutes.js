@@ -1,4 +1,5 @@
 import { Router } from "express";
+import multer from "multer";
 import {
   getMyProfile,
   updateMyProfile,
@@ -13,9 +14,16 @@ import {
   unlockContactDetails,
 } from "../controllers/profileController.js";
 import { protect } from "../middleware/auth.js";
-import { upload } from "../middleware/upload.js";
 import { uploadProfilePhoto } from "../controllers/uploadController.js";
 import { validate, validateObjectId } from "../middleware/validate.js";
+
+// FIX: was disk storage (middleware/upload.js -> multer.diskStorage), which
+// wrote files to the backend's local filesystem. Render's standard web
+// service disk is not persistent, so uploaded photos disappeared on every
+// redeploy/restart. uploadProfilePhoto now uploads the buffer straight to
+// Cloudinary, so this just needs the file in memory, matching the same
+// approach already used by routes/uploadRoutes.js.
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 * 1024 * 1024 } });
 
 const router = Router();
 

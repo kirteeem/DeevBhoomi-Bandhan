@@ -60,12 +60,14 @@ const { data } = await axios.post(
         queue = [];
         return api(original);
       } catch (refreshError) {
-  console.log("REFRESH ERROR:", refreshError);
-
-  // Comment these out temporarily
-  // localStorage.removeItem("accessToken");
-  // localStorage.removeItem("refreshToken");
-  // window.location.href = "/login";
+  // Refresh token is invalid/expired: the stale session can't be recovered.
+  // Clear both tokens and send the user to a real login screen instead of
+  // leaving them in a "logged in but every request silently fails" state.
+  localStorage.removeItem("accessToken");
+  localStorage.removeItem("refreshToken");
+  if (!window.location.pathname.startsWith("/login")) {
+    window.location.href = "/login";
+  }
 
   return Promise.reject(refreshError);
 } finally {
