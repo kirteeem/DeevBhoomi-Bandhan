@@ -143,7 +143,7 @@ export const Step8Photos = ({
         </span>
         <h3 className="text-xl font-bold tracking-tight text-[#1A1A1A]">Upload Presentation Gallery</h3>
         <p className="text-xs text-zinc-400 font-medium mt-1">
-          Profiles with clear photographs receive up to 8x higher engagement rates. Curate your presentation with up to 2 premium images.
+          Profiles with clear photographs receive up to 8x higher engagement rates. Curate your presentation with up to 2 premium images — entirely optional. Prefer not to upload? We'll show a tasteful default avatar on your profile instead.
         </p>
       </div>
 
@@ -269,12 +269,12 @@ export const Step8Photos = ({
                     <span className={`text-[11px] font-semibold tracking-tight ${
                       isMandatoryProfileSlot ? "text-[#7B1E3D]" : "text-zinc-400 group-hover:text-zinc-600"
                     }`}>
-                      {isMandatoryProfileSlot ? "Main Photo *" : "Add Image"}
+                      {isMandatoryProfileSlot ? "Profile Photo" : "Add Image"}
                     </span>
-                    
+
                     {isMandatoryProfileSlot && (
-                      <span className="text-[9px] text-[#7B1E3D]/60 font-medium -mt-1">
-                        Compulsory
+                      <span className="text-[9px] text-zinc-400 font-medium -mt-1">
+                        Optional
                       </span>
                     )}
                   </div>

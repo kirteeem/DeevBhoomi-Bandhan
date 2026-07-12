@@ -28,15 +28,40 @@ export const resolvePhotoUrl = (url?: string | null) => {
 };
 
 /**
- * Returns an absolute photo URL for profile visualization cards: uses the real upload path 
- * if verified, otherwise generates a fallback based on deterministic gender indexing.
+ * Brand-styled default avatar (ivory background, maroon silhouette, gold ring)
+ * shown wherever a profile has no uploaded photo. Encoded as an inline SVG data
+ * URI so it never depends on an external image service or network call.
+ */
+const buildDefaultAvatar = (gender?: string | null) => {
+  // Subtle tonal variation so male / female / unspecified profiles feel
+  // distinct without resorting to literal gendered iconography.
+  const accent =
+    gender === "female" ? "#7B1E3D" : gender === "male" ? "#274B4B" : "#7B1E3D";
+
+  const svg = `
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+      <rect width="200" height="200" fill="#FBF9F6" />
+      <circle cx="100" cy="100" r="94" fill="none" stroke="#C89A45" stroke-width="2.5" opacity="0.6" />
+      <circle cx="100" cy="82" r="34" fill="${accent}" opacity="0.85" />
+      <path d="M30 190 C30 138 60 112 100 112 C140 112 170 138 170 190 Z" fill="${accent}" opacity="0.85" />
+    </svg>`.trim();
+
+  return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+};
+
+export const DEFAULT_AVATAR = buildDefaultAvatar();
+
+/**
+ * Returns an absolute photo URL for profile visualization cards: uses the real upload path
+ * if present, otherwise falls back to a tasteful default avatar so no image slot is ever
+ * left compulsory or broken.
  */
 export const getDisplayPhoto = (
   url?: string | null,
-
+  gender?: string | null,
 ) => {
   const real = resolvePhotoUrl(url);
   if (real) return real;
 
-  return "";
+  return buildDefaultAvatar(gender);
 };

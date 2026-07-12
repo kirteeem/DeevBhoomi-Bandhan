@@ -2,9 +2,9 @@ import { z } from "zod";
 import KundaliRequest from "../models/KundaliRequest.js";
 import KundaliReport from "../models/KundaliReport.js";
 import Priest from "../models/Priest.js";
-import Notification from "../models/Notification.js";
 import { asyncHandler } from "../middleware/asyncHandler.js";
 import { ok } from "../utils/apiResponse.js";
+import { notifyUser } from "../utils/notify.js";
 
 export const updateStatusSchema = z.object({
   status: z.enum(["pending", "in_review", "completed", "cancelled"]),
@@ -78,7 +78,8 @@ export const submitReport = asyncHandler(async (req, res) => {
   priest.totalMatchesReviewed += 1;
   await priest.save();
 
-  await Notification.create({
+  await notifyUser({
+    io: req.app.get("io"),
     user: request.requestedBy,
     type: "kundali_ready",
     title: "Your Kundali Report is Ready",

@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { BadgeCheck, Circle, Pencil, Eye, Share2, Settings, MapPin, Briefcase } from "lucide-react";
 import type { AuthUser, Profile } from "../../types";
 import { ProgressBar } from "../ui/ProgressBar";
-import { resolvePhotoUrl } from "../../lib/media";
+import { getDisplayPhoto } from "../../lib/media";
 
 /**
  * Premium profile summary card shown at the top of the Dashboard.
@@ -20,7 +20,7 @@ export const ProfileSummaryCard = ({ user, profile }: { user: AuthUser; profile?
     profile?.photos?.find((p) => p.isProfilePhoto)?.url ??
     profile?.photos?.[0]?.url;
 
-  const profilePhoto = resolvePhotoUrl(rawPhoto);
+  const profilePhoto = getDisplayPhoto(rawPhoto, user.gender);
 
   // lastLoginAt only exists on the user object once /auth/me has been called at least
   // once this session (see types/index.ts) — treat "seen in the last 5 minutes" as online.
@@ -40,7 +40,7 @@ export const ProfileSummaryCard = ({ user, profile }: { user: AuthUser; profile?
                 initial={{ scale: 0.85, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ delay: 0.1 }}
                 className="flex h-28 w-28 items-center justify-center overflow-hidden rounded-full border-4 border-gold/60 bg-cream/10 text-4xl shadow-xl"
               >
-                {profilePhoto ? <img src={profilePhoto} alt={user.fullName} className="h-full w-full object-cover" /> : "🌸"}
+                <img src={profilePhoto} alt={user.fullName} className="h-full w-full object-cover" />
               </motion.div>
               {user.isProfileVerified && (
                 <span className="absolute -right-1 -top-1 flex h-8 w-8 items-center justify-center rounded-full border-2 border-deep bg-gold text-[#2b1c05]">

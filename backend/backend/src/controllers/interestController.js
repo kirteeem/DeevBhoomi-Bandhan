@@ -1,11 +1,11 @@
 import { z } from "zod";
 import mongoose from "mongoose";
 import Interest from "../models/Interest.js";
-import Notification from "../models/Notification.js";
 import Profile from "../models/Profile.js";
 import ContactUnlock from "../models/ContactUnlock.js";
 import { asyncHandler } from "../middleware/asyncHandler.js";
 import { ok } from "../utils/apiResponse.js";
+import { notifyUser } from "../utils/notify.js";
 
 const objectId = z.string().refine((v) => mongoose.Types.ObjectId.isValid(v), "Invalid id");
 
@@ -32,7 +32,8 @@ export const sendInterest = asyncHandler(async (req, res) => {
     { upsert: true, new: true, setDefaultsOnInsert: true }
   );
 
-  await Notification.create({
+  await notifyUser({
+    io: req.app.get("io"),
     user: receiverId,
     fromUser: req.user._id,
     type: "new_interest",
@@ -40,9 +41,6 @@ export const sendInterest = asyncHandler(async (req, res) => {
     body: `${req.user.fullName} sent you an interest.`,
     relatedId: interest._id,
   });
-
-  const io = req.app.get("io");
-  io?.to(`user:${receiverId}`).emit("notification:new", { type: "new_interest" });
 
   ok(res, { interest }, "Interest sent", 201);
 });
@@ -60,7 +58,8 @@ export const respondToInterest = asyncHandler(async (req, res) => {
   await interest.save();
 
   if (status === "accepted") {
-    await Notification.create({
+    await notifyUser({
+      io: req.app.get("io"),
       user: interest.sender,
       fromUser: req.user._id,
       type: "interest_accepted",

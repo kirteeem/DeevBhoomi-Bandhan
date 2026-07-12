@@ -19,7 +19,7 @@ import { motion } from "framer-motion";
 import { api } from "../lib/axios";
 import { useAuth } from "../context/AuthContext";
 import { useProfileGate } from "../context/ProfileGateContext";
-import { resolvePhotoUrl } from "../lib/media";
+import { resolvePhotoUrl, getDisplayPhoto } from "../lib/media";
 import { getFriendlyErrorMessage } from "../lib/errorMessage";
 import type { Profile as ProfileType } from "../types";
 
@@ -311,7 +311,6 @@ export const Dashboard = () => {
                 ) : suggested && suggested.length > 0 ? (
                   suggested.slice(0, 4).map((p) => {
                     const rawPhotoUrl = p.photos?.find((ph) => ph.isProfilePhoto)?.url || p.photos?.[0]?.url;
-                    const cardFallbackUrl = p.user?.gender ? `https://avatar.iran.liara.run/public/${p.user.gender.toLowerCase() === 'female' ? 'girl' : 'boy'}` : "";
                     const age = calcAge(p.dateOfBirth);
                     const height = formatHeight(p.heightCm);
                     const isLocked = Boolean(p.isLocked) && !isPremium;
@@ -320,7 +319,7 @@ export const Dashboard = () => {
                       <div key={p._id} className="group overflow-hidden rounded-[20px] border border-[#ECE8E2] bg-white p-4 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md">
                         <div className="relative aspect-square w-full overflow-hidden rounded-xl bg-neutral-50">
                           <img
-                            src={resolvePhotoUrl(rawPhotoUrl) || cardFallbackUrl}
+                            src={getDisplayPhoto(rawPhotoUrl, p.user?.gender)}
                             className={`h-full w-full object-cover transition-transform duration-500 group-hover:scale-105 ${isLocked ? "blur-md scale-105" : ""}`}
                             alt="Profile"
                           />

@@ -5,7 +5,7 @@ import { User, GraduationCap, Home, Heart, Moon, ArrowLeft, Sparkles, Loader2, C
 import { api } from "../lib/axios";
 import { useAuth } from "../context/AuthContext";
 import { unlockProfile } from "../lib/profileApi";
-import { resolvePhotoUrl } from "../lib/media";
+import { getDisplayPhoto } from "../lib/media";
 import { AboutSection } from "../components/profile/AboutSection";
 import { ProfileGallery } from "../components/profile/ProfileGallery";
 import { LockedDetailsCard } from "../components/profile/LockedDetailsCard";
@@ -119,7 +119,7 @@ export const ProfilePreview = () => {
   // Resolve via the shared media helper (handles Cloudinary absolute URLs,
   // legacy disk-storage prefixes, and missing leading slashes consistently
   // with every other page that renders a profile photo).
-  const userMainImage = resolvePhotoUrl(profilePhoto?.url) || "";
+  const userMainImage = getDisplayPhoto(profilePhoto?.url, (profile as any).gender);
 
   // FIXED: Cast profile fields to avoid missing explicit property interface types compiled validation issues
  // FIXED: Cast profile to any to resolve the missing 'fullName' type error

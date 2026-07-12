@@ -2,10 +2,11 @@ import { useEffect, useState, useRef } from "react";
 import { Link, NavLink, useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {  useScroll, useMotionValueEvent } from "framer-motion";
-import { Menu, Globe, Crown, Bell } from "lucide-react";
+import { Menu, Globe, Crown } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { Button } from "../ui/Button";
 import { UserProfileMenu } from "./UserProfileMenu";
+import { NotificationBell } from "./NotificationBell";
 
 const Logo = new URL("../../assets/logo.jpeg", import.meta.url).href;
 
@@ -162,21 +163,7 @@ export const Navbar = () => {
           </button>
 
           {/* --- NOTIFICATIONS MODULE --- */}
-          {user && (
-            <Link
-              to="/notifications"
-              aria-label={t("nav.notifications", "Notifications")}
-              className={`relative flex h-9 w-9 items-center justify-center rounded-xl border transition-all duration-300 active:scale-[0.98] ${
-                isSolid 
-                  ? "border-[#241F1C]/[0.12] text-[#241F1C]/70 hover:bg-[#241F1C]/[0.05]" 
-                  : "border-white/30 text-white hover:bg-white/10 drop-shadow-sm"
-              }`}
-            >
-              <Bell className="h-[17px] w-[17px]" />
-              {/* Pulse Badge Notification Indicator */}
-              <span className="absolute top-2.5 right-2.5 h-1.5 w-1.5 rounded-full bg-rose-500 ring-1 ring-transparent animate-pulse" />
-            </Link>
-          )}
+          {user && <NotificationBell isSolid={isSolid} />}
 
           {user ? (
             <UserProfileMenu />

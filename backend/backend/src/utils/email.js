@@ -61,6 +61,32 @@ export const sendEmailVerificationEmail = async (user, verifyUrl) =>
     html: `<p>Hi ${user.fullName},</p><p>Please verify your email address to unlock all features of your account.</p><p><a href="${verifyUrl}">${verifyUrl}</a></p><p>This link is valid for <strong>24 hours</strong>.</p>`,
   });
 
+// Sent whenever an in-app Notification document is created for a user (new
+// interest, interest accepted, kundali report ready, etc.) so members who
+// aren't actively browsing the site still hear about activity on their
+// profile. Kept generic/lightweight — the in-app notification is always the
+// source of truth; this email just points people back to it.
+export const sendNotificationEmail = async ({ user, title, body, appUrl }) => {
+  if (!user?.email) return { delivered: false, logged: false };
+
+  const notificationsUrl = `${(appUrl || process.env.CLIENT_URL || "http://localhost:5173").split(",")[0].replace(/\/$/, "")}/notifications`;
+
+  return sendEmail({
+    to: user.email,
+    subject: `${title || "You have a new notification"} — Devbhoomi Bandhan`,
+    text: `Hi ${user.fullName}, you got a notification on Devbhoomi Bandhan: ${title || "New update"}. ${body || ""} View it here: ${notificationsUrl}`,
+    html: `
+      <p>Hi ${user.fullName},</p>
+      <p>You got a notification on Devbhoomi Bandhan:</p>
+      <p style="padding:12px 16px;border-left:3px solid #7B1E3D;background:#FBF9F6;">
+        <strong>${title || "New update"}</strong><br/>
+        ${body || ""}
+      </p>
+      <p><a href="${notificationsUrl}">View all your notifications</a></p>
+    `,
+  });
+};
+
 // Fixed inbox that reviews every free kundali-matching request submitted on
 // the platform. Kept as a constant here (rather than scattered inline)
 // so it only needs updating in one place.
